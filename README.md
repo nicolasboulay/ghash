@@ -9,7 +9,10 @@ To do that ghash use sha512 3 times, to generate 22 number between 0 and 1.0, to
 
 ## example
 
-$ echo "plop" | ghash
+$ echo "Hello world!" | ghash -o helloworld.png
+
+![Doc](https://github.com/nicolasboulay/ghash/raw/master/src/helloworld.png
+"helloworld.png")
 
 ## More information
 
