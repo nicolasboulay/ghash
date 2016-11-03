@@ -1,0 +1,1 @@
+PATH=~/Documents/ghash/gmic_static/:$PATH go run ghash.go $@
