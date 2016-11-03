@@ -15,8 +15,8 @@ $ echo "Hello world!" | ghash -o helloworld.png
 
 ## More information
 
-Humain brain are more sensible to shape than color : the image generator must not use too much color. But the image genetor should generate enough different images, to avoid collision (you add a character to a texte, to produce the same image than an other texte). Ghash can generate around 100^22 image, but only 10^22 could be easly differentiate by the naked eyes.  
+Humain brain are more sensible to shape than color : the image generator must not use too much color. But the image generator should generate enough different images, to avoid collision (you add a character to a texte, to produce the same image than an other texte). Ghash can generate around 100^22 images, but only 10^22 could be easly differentiate by the naked eyes.  
 
-Attack could be done by brute forced the generator, using a metric like the psnr, to find 2 similar images under a threasold.
+Attack could be done by brute force using the generator, using a metric like the psnr, to find 2 similar images under a threasold.
 
 Ghash use "go" langage to generate the SHA512 internal hash, and a gmic script to generate the image ( http://gmic.eu ). The gmic part could be rewritten in C++ using the CImg.h header, for faster generation (around 10x). The actual script take less than a second. 
