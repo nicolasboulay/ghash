@@ -53,18 +53,21 @@ func  toS(f float64) string {
 }
 
 
-func generateImage(size int, ft []float64, filename string ) {
+func generateImage(size int, ft []float64, filename string, test bool ) {
 	s := toS(ft[0]) 
 	for _, f := range ft[1:] {
 		s = s + "," + toS(f)
 	}
 	s = strconv.Itoa(size) + "," +s
 	fmt.Printf(" %s\n", s)
-	runGmic(s,filename) 
+	runGmic(s,filename, test) 
 }
 
-func runGmic(s string, filename string ) {
-	cmd := exec.Command("gmic", "ghash.gmic", "-ghash", s, "-o[0]", filename, "-o[1]", "gradient_" + filename )
+func runGmic(s string, filename string, test bool ) {
+	cmd := exec.Command("gmic", "ghash.gmic", "-ghash", s, "-o[0]", filename)
+	if(test) {
+		cmd = exec.Command("gmic", "ghash.gmic", "-ghash", s, "-o[0]", filename, "-o[1]", "gradient_" + filename )
+	}
 	//cmd := exec.Command("gmic", "-version") // ok 1.7.7
 
 	out, err := cmd.CombinedOutput()
@@ -75,16 +78,16 @@ func runGmic(s string, filename string ) {
 	fmt.Printf(" %s\n", out)
 }
 
-func runPSNR(filenameA string, filenameB string ) {
-	cmd := exec.Command("gmic",filenameA, filenameB, "-psnr" )
-
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf(" %s\n", out)
-	log.Fatal(err)
-	}
-	fmt.Printf(" %s\n", out)
-}
+//func runPSNR(filenameA string, filenameB string ) {
+//	cmd := exec.Command("gmic",filenameA, filenameB, "-psnr" )
+//
+//	out, err := cmd.CombinedOutput()
+//	if err != nil {
+//		fmt.Printf(" %s\n", out)
+//	log.Fatal(err)
+//	}
+//	fmt.Printf(" %s\n", out)
+//}
 
 func ScanAndHash() []float64 {
 	hash := sha512.New()
@@ -118,7 +121,7 @@ func main() {
 	flag.Parse();
 
 	ft := ScanAndHash()
-	generateImage(*size, ft, *name) 
+	generateImage(*size, ft, *name, *test) 
 
 	ftBis := make([]float64,32,32)
 
@@ -126,7 +129,7 @@ func main() {
 		for i, _ := range ft[0:23] {
 			copy(ftBis[:],ft[:]);
 			ftBis[i] += 0.01
-			generateImage(*size, ftBis, "test"+ strconv.Itoa(102+i)+ "_"  + *name) 
+			generateImage(*size, ftBis, "test"+ strconv.Itoa(102+i)+ "_"  + *name, *test) 
 		}
 	}
 }
