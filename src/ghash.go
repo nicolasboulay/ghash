@@ -10,6 +10,10 @@ import (
 	"log"
 	"strconv"
 	"flag"
+	"strings"
+	"path/filepath"
+	"path"
+	"regexp"
 )
 
 func process(a byte, b byte, c byte, d byte) float64 {
@@ -62,21 +66,57 @@ func generateImage(size int, ft []float64, filename string, test bool ) {
 	fmt.Printf(" %s\n", s)
 	runGmic(s,filename, test) 
 }
-
-func runGmic(s string, filename string, test bool ) {
-	cmd := exec.Command("gmic", "ghash.gmic", "-ghash", s, "-o[0]", filename)
-	if(test) {
-		cmd = exec.Command("gmic", "ghash.gmic", "-ghash", s, "-o[0]", filename, "-o[1]", "gradient_" + filename )
+var executableFolder string = getExecutableFolder() 
+func getExecutableFolder() string {
+	path, _ := getExecutablePathOnLinux()
+	goRun, _ := regexp.MatchString("/tmp/*", path) // if "go run" is used
+	if (goRun) {
+		return "."
 	}
-	//cmd := exec.Command("gmic", "-version") // ok 1.7.7
+	
+	return filepath.Dir(path)
+}
+
+var executablePath string = "" // caching
+func getExecutablePathOnLinux() (string, error) {
+
+	if(executablePath == "") {
+		const deletedTag = " (deleted)"
+		execpath, err := os.Readlink("/proc/self/exe")
+		if err != nil {
+			return execpath, err
+		}
+		execpath = strings.TrimSuffix(execpath, deletedTag)
+		execpath = strings.TrimPrefix(execpath, deletedTag)
+		executablePath = execpath
+		return execpath, nil
+	} else {
+		return executablePath, nil
+	}
+}
+
+var gmicScriptPath string = path.Join(executableFolder,"ghash.gmic") 
+var gmicPath string = path.Join(executableFolder,"gmic") 
+func runGmic(s string, filename string, test bool ) {
+
+	cmd := exec.Command(gmicPath, gmicScriptPath, "-ghash", s, "-o[0]", filename)
+	if(test) {
+		cmd = exec.Command(gmicPath, gmicScriptPath, "-ghash", s, "-o[0]", filename, "-o[1]", "gradient_" + filename )
+	}
+	//
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
+		fmt.Printf(" %s\n", out)
+		fmt.Printf("[ERROR] gmic have been tested using version 1.7.7 : \n\n")
+		cmd := exec.Command("gmic", "-version") // ok 1.7.7
+		out, err := cmd.CombinedOutput()
 		fmt.Printf(" %s\n", out)
 		log.Fatal(err)
 	}
 	fmt.Printf(" %s\n", out)
 }
+
 
 //func runPSNR(filenameA string, filenameB string ) {
 //	cmd := exec.Command("gmic",filenameA, filenameB, "-psnr" )
