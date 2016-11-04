@@ -63,9 +63,14 @@ func generateImage(size int, ft []float64, filename string, test bool ) {
 		s = s + "," + toS(f)
 	}
 	s = strconv.Itoa(size) + "," +s
-	fmt.Printf(" %s\n", s)
+	if(test) {
+		fmt.Printf("parameters : %s\n", s)
+	}
 	runGmic(s,filename, test) 
 }
+
+//  return the folder of the executable
+//  return "." if find inside /tmp/ like for go run execution which is a tiny work around
 var executableFolder string = getExecutableFolder() 
 func getExecutableFolder() string {
 	path, _ := getExecutablePathOnLinux()
@@ -77,28 +82,30 @@ func getExecutableFolder() string {
 	return filepath.Dir(path)
 }
 
-var executablePath string = "" // caching
 func getExecutablePathOnLinux() (string, error) {
-
-	if(executablePath == "") {
-		const deletedTag = " (deleted)"
-		execpath, err := os.Readlink("/proc/self/exe")
-		if err != nil {
-			return execpath, err
-		}
-		execpath = strings.TrimSuffix(execpath, deletedTag)
-		execpath = strings.TrimPrefix(execpath, deletedTag)
-		executablePath = execpath
-		return execpath, nil
-	} else {
-		return executablePath, nil
+	const deletedTag = " (deleted)"
+	execpath, err := os.Readlink("/proc/self/exe")
+	if err != nil {
+		return execpath, err
 	}
+	execpath = strings.TrimSuffix(execpath, deletedTag)
+	execpath = strings.TrimPrefix(execpath, deletedTag)
+	return execpath, nil
+}
+
+func findGmic() string {
+	p := path.Join(executableFolder,"gmic") 
+	cmd := exec.Command(p, "-version") // try gmic beside binary 
+	_, err := cmd.CombinedOutput()
+	if(err != nil) {
+		p = "gmic" // try gmic of the system
+	}
+	return p
 }
 
 var gmicScriptPath string = path.Join(executableFolder,"ghash.gmic") 
-var gmicPath string = path.Join(executableFolder,"gmic") 
+var gmicPath string = findGmic() 
 func runGmic(s string, filename string, test bool ) {
-
 	cmd := exec.Command(gmicPath, gmicScriptPath, "-ghash", s, "-o[0]", filename)
 	if(test) {
 		cmd = exec.Command(gmicPath, gmicScriptPath, "-ghash", s, "-o[0]", filename, "-o[1]", "gradient_" + filename )
@@ -108,13 +115,15 @@ func runGmic(s string, filename string, test bool ) {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf(" %s\n", out)
-		fmt.Printf("[ERROR] gmic have been tested using version 1.7.7 : \n\n")
-		cmd := exec.Command("gmic", "-version") // ok 1.7.7
-		out, err := cmd.CombinedOutput()
+		cmd := exec.Command(gmicPath, "-version")
+		out, _ := cmd.CombinedOutput()
 		fmt.Printf(" %s\n", out)
+		fmt.Printf("[ERROR] G'MIC have been tested using version 1.7.7.\n")
 		log.Fatal(err)
 	}
-	fmt.Printf(" %s\n", out)
+	if(test) {
+		fmt.Printf(" %s\n", out)
+	}
 }
 
 
