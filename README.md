@@ -13,6 +13,10 @@ $ echo "Hello world!" | ghash -o helloworld.png
 
 ![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/helloworld.png "helloworld.png")
 
+$ cat ./gmic | ./ghash -o gmic.jpg 
+
+![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/gmic.jpg "gmic.jpg")
+
 ## More information
 
 Humain brain are more sensible to shape than color : the image generator must not use too much color. But the image generator should generate enough different images, to avoid collision (you add a character to a texte, to produce the same image than an other texte). Ghash can generate around 100^22 images, but only 10^22 could be easly differentiate by the naked eyes.  
