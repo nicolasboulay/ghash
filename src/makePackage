@@ -1,0 +1,8 @@
+./make
+mkdir -p ./pack/ghash/
+cp ghash.gmic gmic ghash ./pack/ghash/ 
+cd pack
+$( tar cjf ghash.tar.bz2 ./ghash &\
+tar czf ghash.tar.gz ./ghash &\
+tar cf ghash.tar ./ghash && xz -f ghash.tar &\
+) && echo Done && ls -lh 
