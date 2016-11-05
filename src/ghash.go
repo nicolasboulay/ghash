@@ -57,16 +57,16 @@ func  toS(f float64) string {
 }
 
 
-func generateImage(size int, ft []float64, filename string, test bool ) {
+func generateImage(size int, ft []float64, filename string, test bool, verbose bool ) {
 	s := toS(ft[0]) 
 	for _, f := range ft[1:] {
 		s = s + "," + toS(f)
 	}
 	s = strconv.Itoa(size) + "," +s
-	if(test) {
+	if(verbose) {
 		fmt.Printf("parameters : %s\n", s)
 	}
-	runGmic(s,filename, test) 
+	runGmic(s,filename, test, verbose) 
 }
 
 //  return the folder of the executable
@@ -105,9 +105,9 @@ func findGmic() string {
 
 var gmicScriptPath string = path.Join(executableFolder,"ghash.gmic") 
 var gmicPath string = findGmic() 
-func runGmic(s string, filename string, test bool ) {
+func runGmic(s string, filename string, test bool, verbose bool ) {
 	cmd := exec.Command(gmicPath, gmicScriptPath, "-ghash", s, "-o[0]", filename)
-	if(test) {
+	if(verbose) {
 		cmd = exec.Command(gmicPath, gmicScriptPath, "-ghash", s, "-o[0]", filename, "-o[1]", "gradient_" + filename )
 	}
 	//
@@ -121,7 +121,7 @@ func runGmic(s string, filename string, test bool ) {
 		fmt.Printf("[ERROR] G'MIC have been tested using version 1.7.7.\n")
 		log.Fatal(err)
 	}
-	if(test) {
+	if(verbose) {
 		fmt.Printf(" %s\n", out)
 	}
 }
@@ -166,11 +166,11 @@ func main() {
 	var name = flag.String("o", "ghash.jpg", "name of the output file")
 	var size = flag.Int("size", 128, "size of the square image")
 	var test = flag.Bool("test", false, "generate many image with smallest variation")
-
+	var verbose = flag.Bool("v", false, "more information")
 	flag.Parse();
 
 	ft := ScanAndHash()
-	generateImage(*size, ft, *name, *test) 
+	generateImage(*size, ft, *name, *test, *verbose) 
 
 	ftBis := make([]float64,32,32)
 
@@ -178,7 +178,7 @@ func main() {
 		for i, _ := range ft[0:23] {
 			copy(ftBis[:],ft[:]);
 			ftBis[i] += 0.01
-			generateImage(*size, ftBis, "test"+ strconv.Itoa(102+i)+ "_"  + *name, *test) 
+			generateImage(*size, ftBis, "test"+ strconv.Itoa(102+i)+ "_"  + *name, *test,*verbose) 
 		}
 	}
 }
