@@ -5,7 +5,9 @@ This command line tools create an image based on its input.
 
 The goal is to create "something" easier to verify and remember than hexa string of typical crytpographic hash.
 
-To do that ghash use sha512 3 times, to generate 22 number between 0 and 1.0, to create an image using 2 julia fractal curves mixed together and a 3 color gradient.
+To do that ghash use sha512 3 times, to generate 22 number between 0
+and 1.0, to create an image using 2 julia fractal curves mixed
+together and a 4 color gradient.
 
 ## example
 
