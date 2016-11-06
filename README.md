@@ -19,7 +19,7 @@ $ cat ./gmic | ./ghash -o gmic.jpg
 
 ![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/gmic.jpg "gmic.jpg")
 
-$ echo "one small icon" | ./ghash -size 32 -o icone32.png
+$ echo "one small icon" | ./ghash -size 32 -o icon32.png
 
 ![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/icon32.png "icon32.png")
 
