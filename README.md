@@ -1,5 +1,5 @@
 # ghash
-Hash function with image output
+Hash function with image output (identicon)
 
 This command line tools create an image based on its input.
 
