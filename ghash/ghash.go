@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"crypto/sha512"
+	"golang.org/x/crypto/sha3"
 	"bufio"
 	"os"
 	"math"
@@ -161,24 +162,61 @@ func ScanAndHash() []float64 {
 	return ft
 }
 
+func ScanAndSha3() []float64 {
+	hash := sha3.New512()
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+	    hash.Write([]byte(scanner.Text()))
+	}
+	md := hash.Sum(nil) //1st round
+
+	hashBis := sha3.New512()
+	hashBis.Write(md)
+	md2 := hashBis.Sum(nil) //2nd round
+
+	hashTer := sha3.New512()
+	hashTer.Write(md2)
+	md3 := hashTer.Sum(nil )//3rd round
+
+	ft := make([]float64,32,32)
+	toFloat64Slice2(md,ft[0:8])
+	toFloat64Slice2(md2,ft[8:16])
+	toFloat64Slice2(md3,ft[16:24])
+	return ft
+}
+
 func main() {
 
 	var name = flag.String("o", "ghash.jpg", "name of the output file")
+	var name2 = flag.String("o2", "ghash2.jpg", "name of the 2nd output file (strong option)")
 	var size = flag.Int("size", 128, "size of the square image")
 	var test = flag.Bool("test", false, "generate many image with smallest variation")
 	var verbose = flag.Bool("v", false, "more information")
+	var strong = flag.Bool("9", false, "strong: generate a 2 images (one with sha2 and the other with sha3) for kind of cryptographic protection")
 	flag.Parse();
 
 	ft := ScanAndHash()
 	generateImage(*size, ft, *name, *test, *verbose) 
-
-	ftBis := make([]float64,32,32)
+	var ft2 []float64
+	if * strong {
+		ft2 = ScanAndSha3()
+		generateImage(*size, ft2, *name2, *test, *verbose) 
+	}
+	
 
 	if (*test){ 
+		ftBis  := make([]float64,32,32)
+		ftBis2 := make([]float64,32,32)
+
 		for i, _ := range ft[0:23] {
 			copy(ftBis[:],ft[:]);
 			ftBis[i] += 0.01
-			generateImage(*size, ftBis, "test"+ strconv.Itoa(102+i)+ "_"  + *name, *test,*verbose) 
+			generateImage(*size, ftBis, "test"+ strconv.Itoa(102+i)+ "_" + *name, *test,*verbose)
+			if * strong {
+				copy(ftBis2[:],ft2[:]);
+				ftBis2[i] += 0.01
+				generateImage(*size, ftBis2, "test2"+ strconv.Itoa(102+i)+ "_" + *name2  , *test,*verbose) 
+			}
 		}
 	}
 }
