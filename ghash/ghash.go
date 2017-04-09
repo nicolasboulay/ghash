@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"path"
 	"regexp"
+	"hash"
 )
 
 func process(a byte, b byte, c byte, d byte) float64 {
@@ -139,21 +140,17 @@ func runGmic(s string, filename string, test bool, verbose bool ) {
 //	fmt.Printf(" %s\n", out)
 //}
 
-func ScanAndHash() []float64 {
-	hash := sha512.New()
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-	    hash.Write([]byte(scanner.Text()))
-	}
+// hash is  already full of data 
+func hashToParameters(hash hash.Hash) []float64 {
 	md := hash.Sum(nil) //1st round
+	
+	hash.Reset()
+	hash.Write(md)
+	md2 := hash.Sum(nil) //2nd round
 
-	hashBis := sha512.New()
-	hashBis.Write(md)
-	md2 := hashBis.Sum(nil) //2nd round
-
-	hashTer := sha512.New()
-	hashTer.Write(md2)
-	md3 := hashTer.Sum(nil )//3rd round
+	hash.Reset()
+	hash.Write(md2)
+	md3 := hash.Sum(nil )//3rd round
 
 	ft := make([]float64,32,32)
 	toFloat64Slice2(md,ft[0:8])
@@ -162,27 +159,24 @@ func ScanAndHash() []float64 {
 	return ft
 }
 
-func ScanAndSha3() []float64 {
-	hash := sha3.New512()
+func ScanAndHash2(strong bool) ([]float64, []float64) {
+	hash := sha512.New()
+	hash2 := sha3.New512()
+
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-	    hash.Write([]byte(scanner.Text()))
+		hash.Write(scanner.Bytes())
+		if strong { 
+			hash2.Write(scanner.Bytes())
+		}
 	}
-	md := hash.Sum(nil) //1st round
 
-	hashBis := sha3.New512()
-	hashBis.Write(md)
-	md2 := hashBis.Sum(nil) //2nd round
-
-	hashTer := sha3.New512()
-	hashTer.Write(md2)
-	md3 := hashTer.Sum(nil )//3rd round
-
-	ft := make([]float64,32,32)
-	toFloat64Slice2(md,ft[0:8])
-	toFloat64Slice2(md2,ft[8:16])
-	toFloat64Slice2(md3,ft[16:24])
-	return ft
+	ft := hashToParameters(hash)
+	var ft2 []float64 
+	if strong { 
+		ft2 = hashToParameters(hash2)
+	}
+	return ft,ft2
 }
 
 func main() {
@@ -195,11 +189,11 @@ func main() {
 	var strong = flag.Bool("9", false, "strong: generate a 2 images (one with sha2 and the other with sha3) for kind of cryptographic protection")
 	flag.Parse();
 
-	ft := ScanAndHash()
+	ft,ft2 := ScanAndHash2(*strong)
 	generateImage(*size, ft, *name, *test, *verbose) 
-	var ft2 []float64
+
 	if * strong {
-		ft2 = ScanAndSha3()
+
 		generateImage(*size, ft2, *name2, *test, *verbose) 
 	}
 	
