@@ -32,7 +32,7 @@ $ echo large | ./ghash -size 500 -o ../example/large.jpg
 $ echo "Hello world!" | ghash -9 -o helloworld.png -o2 helloworld2.png
 
 ![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/helloworld.png "helloworld.png")
-![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/helloworld.png "helloworld2.png")
+![Doc](https://github.com/nicolasboulay/ghash/raw/master/example/helloworld2.png "helloworld2.png")
 
 
 ## More information
