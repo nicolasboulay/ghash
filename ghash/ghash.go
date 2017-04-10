@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"crypto/sha512"
 	"golang.org/x/crypto/sha3"
+	"golang.org/x/crypto/bcrypt"
 	"bufio"
 	"os"
 	"math"
@@ -141,6 +142,7 @@ func runGmic(s string, filename string, test bool, verbose bool ) {
 //}
 
 // hash is  already full of data 
+// 3 consecutive hash for 24 float64 number
 func hashToParameters(hash hash.Hash) []float64 {
 	md := hash.Sum(nil) //1st round
 	
@@ -174,6 +176,11 @@ func ScanAndHash2(strong bool) ([]float64, []float64) {
 	ft := hashToParameters(hash)
 	var ft2 []float64 
 	if strong { 
+		md2 := hash.Sum(nil) // first sha3-512 hash 
+		md3, _ := bcrypt.GenerateFromPassword(md2,12) //second bcrypt hash (work only on 50-70 bytes input)
+		//fmt.Printf("%#v\n", err, len(md3), md3)
+		hash2.Reset()  // if removed (?) this will mix 60 bytes bcrypt hash with the sha3-512 bytes hash
+		hash2.Write(md3)
 		ft2 = hashToParameters(hash2)
 	}
 	return ft,ft2
