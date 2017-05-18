@@ -45,4 +45,4 @@ the generator take 200ms per image.
 
 Ghash use "go" langage to generate the SHA512 internal hash, and a gmic script to generate the image ( http://gmic.eu ). The gmic script could be rewritten in C++ using the CImg.h header, for faster generation (around 10x). The actual script take less than a second. 
 
-The "-9" option rehash the input with the sha3-512 algorithme injected inside a bcrypt hash, then the result is hashed 3 time with sha3 to create the 22 parameters. The use of bcrypt make bruteforce even more unusable, the use of 2 images as visual hash make collision even more complexe to hack (100^44 possibilities instead of 100^22).  
+The "-9" option rehash the input with the sha3-512 algorithme injected inside a bcrypt hash, then the result is hashed 3 time with sha3 to create the 22 parameters. 
